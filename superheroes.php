@@ -1,5 +1,7 @@
 <?php
-header('Access-Control-Allow-Origin: *');
+
+header('Access-Control-Allow-Origin: *'); // over-ride CORS error
+
 $superheroes = [
   [
       "id" => 1,
@@ -65,8 +67,31 @@ $superheroes = [
 
 ?>
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+<?php 
+if ($_SERVER["REQUEST_METHOD"] == "GET"){
+    $result;
+    $cleanquery = filter_input(INPUT_GET, 'query', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if (isset($cleanquery) && !empty($cleanquery)){
+        for($itr=0; $itr < count($superheroes); $itr++){
+            if (  $superheroes[$itr]['name'] == $cleanquery  ||  $superheroes[$itr]['alias']  == $cleanquery ){
+                $result = "<h3> {$superheroes[$itr]['alias']} </h3> <h4> A.K.A {$superheroes[$itr]['name']} </h4> <p>{$superheroes[$itr]['biography']} </p>";
+                break;
+            }
+            else{
+                $result= "<span>Superhero not found </span>";
+            }
+        }
+        echo $result;
+    }
+    else{
+        ?>
+            <ul>
+            <?php foreach ($superheroes as $superhero): ?>
+            <li><?= $superhero['alias']; ?></li>
+            <?php endforeach; ?>
+            </ul
+        <?php 
+    }?>
+
+<?php } ?>
